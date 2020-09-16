@@ -6,3 +6,6 @@
 
 # Compiled Python files (don't need version control)
 __pycache__/
+
+# Environment files
+env/
