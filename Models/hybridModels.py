@@ -1,14 +1,82 @@
+import configReader
+from constants import ATMOSPHERE_PSI
+from Models.injectorModel import DyerModel
+
+
 class GeneralModel(object):
     """
-        Hybrid model object foundation for particular thrust curve models (inheritance). Not meant to be used itself in
-        calculations for predicting the thrust curve
+        General model implementation
     """
 
+    def __init__(self, mass, temperature, minMass=0,
+                 maxIterations=0, dataBases=None):
+        """
+            Mass in Kg, temperature in K
+        """
+        self.DBs = dataBases
+        self.initMass = mass
+        self.m = mass
+        self.initTemp = temperature
+        self.minMass = minMass
+        self.maxIter = maxIterations
 
-class SolomonModel(GeneralModel):
-    """
-       Solomon model (add more comments as developed)
-    """
+        self.V = 0
+        self.nozThroatArea = 0
+        self.nozExitArea = 0
+        self.Ac = 0
+        self.Cd = 0
+        self.OF = 0
+        self.rampUpTime = 0
+        self.rampDownTime = 0
+        self.dt = 0
+        configReader.ReadSettings(self)
+        self.injector = DyerModel(self, self.Ac, self.Cd)
+
+        self.running = False
+        self.thrust = 0
+        self.iterations = 0
+        self.t = 0
+        self.mdot = 0
+        self.P2 = ATMOSPHERE_PSI
+        self.Pc = ATMOSPHERE_PSI
+
+        # Initialize data arrays
+        self.tArray, self.mArray, self.T1Array = [], [], []
+        self.mdotArray, self.thrustArray = [], []
+        self.rho1Array, self.PcArray = [], []
+
+        try:
+            self.rho1 = self.m/self.V
+        except ValueError:
+            print("Value error encountered when initializing state, unable to create instance")
+            # How to handle value error?
+
+    def timeStep(self):
+        self.model()
+
+        self.iterations += 1
+        if self.m < self.minMass:
+            print("Minimum mass reached, outputting results...")
+            # Output results, CSV file?
+            return False
+        if self.iterations > self.maxIter > 0:
+            print("Maximum iterations reached, outputting results...")
+            # Output results, CSV file?
+            return False
+
+        self.t += self.dt
+
+        return True
+
+    def model(self):
+        pass
+
+    def runModel(self):
+        self.running = True  # Start running
+
+        while self.running:
+            print("Running iteration ", self.iterations)
+            self.running = self.timeStep()
 
 
 class AspireModel(GeneralModel):
