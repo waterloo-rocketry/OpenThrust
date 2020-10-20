@@ -40,19 +40,19 @@ class DataBase(object):
         rowCount = -1
         for row in csv.reader(open(self.path, 'r'), delimiter='\t'):
             if rowCount > -1:
-                self.T_NIST[rowCount] = float(row[0]) + CtoKELVIN
-                self.P_NIST[rowCount] = float(row[1])
-                self.rho_L_NIST[rowCount] = float(row[2])
-                self.h_L_NIST[rowCount] = float(row[5])
-                self.s_L_NIST[rowCount] = float(row[6])
-                self.rho_V_NIST[rowCount] = float(row[14])
-                self.h_V_NIST[rowCount] = float(row[17])
-                self.s_V_NIST[rowCount] = float(row[18])
+                self.T_NIST += [float(row[0]) + CtoKELVIN]
+                self.P_NIST += [float(row[1])]
+                self.rho_L_NIST += [float(row[2])]
+                self.h_L_NIST += [float(row[5])]
+                self.s_L_NIST += [float(row[6])]
+                self.rho_V_NIST += [float(row[14])]
+                self.h_V_NIST += [float(row[17])]
+                self.s_V_NIST += [float(row[18])]
             rowCount += 1
 
         # Interpolate with respect to temperature to build splines
         self.nistSplines_T["P"] = interpX(self.T_NIST, self.P_NIST)
-        self.nistSplines_T["rho_L"] = interpX(self.T_NIST, self.rho_L_NIST)
+        self.nistSplines_T["rho_L_NIST"] = interpX(self.T_NIST, self.rho_L_NIST)
         self.nistSplines_T["h_L_NIST"] = interpX(self.T_NIST, self.h_L_NIST)
         self.nistSplines_T["s_L_NIST"] = interpX(self.T_NIST, self.s_L_NIST)
         self.nistSplines_T["rho_V_NIST"] = interpX(self.T_NIST, self.rho_V_NIST)
@@ -60,25 +60,30 @@ class DataBase(object):
         self.nistSplines_T["s_V_NIST"] = interpX(self.T_NIST, self.s_V_NIST)
 
         # Interpolate with respect to pressure to build splines
-        self.nistSplines_T["T"] = interpX(self.P_NIST, self.T_NIST)
-        self.nistSplines_T["rho_L"] = interpX(self.P_NIST, self.rho_L_NIST)
-        self.nistSplines_T["h_L_NIST"] = interpX(self.P_NIST, self.h_L_NIST)
-        self.nistSplines_T["s_L_NIST"] = interpX(self.P_NIST, self.s_L_NIST)
-        self.nistSplines_T["rho_V_NIST"] = interpX(self.P_NIST, self.rho_V_NIST)
-        self.nistSplines_T["h_V_NIST"] = interpX(self.P_NIST, self.h_V_NIST)
-        self.nistSplines_T["s_V_NIST"] = interpX(self.P_NIST, self.s_V_NIST)
+        self.nistSplines_P["T"] = interpX(self.P_NIST, self.T_NIST)
+        self.nistSplines_P["rho_L_NIST"] = interpX(self.P_NIST, self.rho_L_NIST)
+        self.nistSplines_P["h_L_NIST"] = interpX(self.P_NIST, self.h_L_NIST)
+        self.nistSplines_P["s_L_NIST"] = interpX(self.P_NIST, self.s_L_NIST)
+        self.nistSplines_P["rho_V_NIST"] = interpX(self.P_NIST, self.rho_V_NIST)
+        self.nistSplines_P["h_V_NIST"] = interpX(self.P_NIST, self.h_V_NIST)
+        self.nistSplines_P["s_V_NIST"] = interpX(self.P_NIST, self.s_V_NIST)
+
+        self.loaded = True
 
     def grabProps(self, rho, T=None, P=None):
         """
         Returns data for either a specified temperature or pressure.
         If both are specified, temperature will be used to generate the data
         """
-        if T and T <= 0:
+        if (T == 0 or T) and T <= 0:
             raise ValueError("Temperature is at or below 0 K")
         if rho <= 0:
             raise ValueError("Density is at or below 0")
-        if P and P <= 0:
+        if (P == 0 or P) and P <= 0:
             raise ValueError("Pressure is at or below 0")
+        if not self.loaded:
+            # Build the NIST splines if they haven't yet been built
+            self.buildNistSplines()
         props = {}
         if T:
             props["T"] = T
@@ -90,16 +95,16 @@ class DataBase(object):
             propSet = lambda prop: float(self.nistSplines_P[prop](P))
         else:
             raise ValueError("No reference point given")
-        propSet("rho_L")
-        propSet("h_L_NIST")
-        propSet("s_L_NIST")
-        propSet("rho_V_NIST")
-        propSet("h_V_NIST")
-        propSet("s_V_NIST")
+        props["rho_L_NIST"] = propSet("rho_L_NIST")
+        props["h_L_NIST"] = propSet("h_L_NIST")
+        props["s_L_NIST"] = propSet("s_L_NIST")
+        props["rho_V_NIST"] = propSet("rho_V_NIST")
+        props["h_V_NIST"] = propSet("h_V_NIST")
+        props["s_V_NIST"] = propSet("s_V_NIST")
 
-        props["X"] = calcQuality(rho, props["rho_V"], props["rho_L"])
-        props["h"] = props["h_V"]*props["X"] + props["h_L"]*(1-props["X"])
-        props["s"] = props["s_V"]*props["X"] + props["s_L"]*(1-props["X"])
+        props["X"] = calcQuality(rho, props["rho_V_NIST"], props["rho_L_NIST"])
+        props["h"] = props["h_V_NIST"]*props["X"] + props["h_L_NIST"]*(1-props["X"])
+        props["s"] = props["s_V_NIST"]*props["X"] + props["s_L_NIST"]*(1-props["X"])
         props["state"] = 1
 
         return props
