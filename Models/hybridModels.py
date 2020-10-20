@@ -1,6 +1,7 @@
 import configReader
-from constants import ATMOSPHERE_PSI
+from constants import ATMOSPHERE_PSI, CONFIG_PATH
 from Models.injectorModel import DyerModel
+from getRPA import createRPAconf
 
 
 class GeneralModel(object):
@@ -8,8 +9,7 @@ class GeneralModel(object):
         General model implementation
     """
 
-    def __init__(self, mass, temperature, minMass=0,
-                 maxIterations=0, dataBases=None):
+    def __init__(self, mass, temperature, minMass=0, maxIterations=0, dataBases=None, label=""):
         """
             Mass in Kg, temperature in K
         """
@@ -29,7 +29,8 @@ class GeneralModel(object):
         self.rampUpTime = 0
         self.rampDownTime = 0
         self.dt = 0
-        configReader.ReadSettings(self)
+        configReader.ReadSettings(self, CONFIG_PATH)
+        self.rpaConf = createRPAconf(self, fileName=label)
         self.injector = DyerModel(self, self.Ac, self.Cd)
 
         self.running = False
@@ -46,10 +47,10 @@ class GeneralModel(object):
         self.rho1Array, self.PcArray = [], []
 
         try:
-            self.rho1 = self.m/self.V
+            self.rho1 = self.m / self.V
         except ValueError:
             print("Value error encountered when initializing state, unable to create instance")
-            # How to handle value error?
+            exit(1)
 
     def timeStep(self):
         self.model()

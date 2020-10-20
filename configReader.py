@@ -1,10 +1,9 @@
 import configparser
-from constants import CONFIG_PATH
 
 
-def ReadSettings(newModel):
+def ReadSettings(newModel, confPath):
     config = configparser.ConfigParser()
-    config.read(CONFIG_PATH)
+    config.read(confPath)
 
     # Set rocket dimension settings
     newModel.V = (float(config["Rocket Dimensions"]["oxidizer tank volume (l)"])) / 1000.0  # L to m^3
