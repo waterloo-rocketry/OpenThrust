@@ -1,4 +1,5 @@
 import configparser
+from constants import CM2_TO_M2, L_TO_M3
 
 
 def ReadSettings(newModel, confPath):
@@ -6,10 +7,10 @@ def ReadSettings(newModel, confPath):
     config.read(confPath)
 
     # Set rocket dimension settings
-    newModel.V = (float(config["Rocket Dimensions"]["oxidizer tank volume (l)"])) / 1000.0  # L to m^3
-    newModel.nozThroatArea = (float(config["Rocket Dimensions"]["nozzle throat area (cm^2)"])) * 0.0001  # cm^2 to m^2
-    newModel.nozExitArea = (float(config["Rocket Dimensions"]["nozzle exit area (cm^2)"])) * 0.0001  # cm^2 to m^2
-    newModel.Ac = (float(config["Rocket Dimensions"]["injector area (cm^2)"])) * 0.0001  # cm^2 to m^2
+    newModel.V = (float(config["Rocket Dimensions"]["oxidizer tank volume (l)"])) * L_TO_M3
+    newModel.nozThroatArea = (float(config["Rocket Dimensions"]["nozzle throat area (cm^2)"])) * CM2_TO_M2
+    newModel.nozExitArea = (float(config["Rocket Dimensions"]["nozzle exit area (cm^2)"])) * CM2_TO_M2
+    newModel.Ac = (float(config["Rocket Dimensions"]["injector area (cm^2)"])) * CM2_TO_M2
 
     # Set rocket property settings
     newModel.Cd = float(config["Rocket Properties"]["injector discharge coefficient"])

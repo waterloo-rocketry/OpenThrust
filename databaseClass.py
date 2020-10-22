@@ -1,6 +1,6 @@
 from scipy.interpolate import interp1d
 import csv
-from constants import CtoKELVIN
+from constants import CENTIGRADE_TO_KELVIN
 
 
 def interpX(X, Y):
@@ -40,7 +40,7 @@ class DataBase(object):
         rowCount = -1
         for row in csv.reader(open(self.path, 'r'), delimiter='\t'):
             if rowCount > -1:
-                self.T_NIST += [float(row[0]) + CtoKELVIN]
+                self.T_NIST += [float(row[0]) + CENTIGRADE_TO_KELVIN]
                 self.P_NIST += [float(row[1])]
                 self.rho_L_NIST += [float(row[2])]
                 self.h_L_NIST += [float(row[5])]

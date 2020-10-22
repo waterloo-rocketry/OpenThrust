@@ -26,7 +26,7 @@ class DyerModel(object):
         W = (1 / (k + 1))
 
         self.mdot_SPI = self.Cd * self.Ac * (
-                (2 * self.parent.rho1 * ((self.parent.P1 - self.parent.P2) * PSItoPASCAL)) ** 0.5)
+                (2 * self.parent.rho1 * ((self.parent.P1 - self.parent.P2) * PSI_TO_PASCAL)) ** 0.5)
         self.mdot_HEM = self.Cd * self.parent.rho2 * self.Ac * (
                 (2 * (self.parent.h1 - self.parent.h2)) ** 0.5)
         if isinstance(self.mdot_HEM, complex):
