@@ -1,6 +1,8 @@
-import pytest
-import configReader
 from dataclasses import dataclass
+
+import pytest
+
+import configReader
 
 
 @dataclass
@@ -19,7 +21,7 @@ class MockModel:
 class TestConfig:
     def test_configParse(self):
         testStruct = MockModel()
-        configReader.ReadSettings(testStruct, r"UnitTests\testConfig.cfg")
+        configReader.readSettings(testStruct, r"UnitTests\testConfig.cfg")
 
         assert testStruct.V == pytest.approx(6.9 / 1e3)
         assert testStruct.nozThroatArea == pytest.approx(3.82646 / 1e4)

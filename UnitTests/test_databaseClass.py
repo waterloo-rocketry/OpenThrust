@@ -1,7 +1,8 @@
-import pytest
-import databaseClass as db
 from constants import NIST_PATH
 
+import databaseClass as db
+
+import pytest
 
 
 class TestHelpers:
@@ -11,15 +12,8 @@ class TestHelpers:
 
 
 class TestDB:
-    def test_buildSplines(self):
-        database = db.DataBase(NIST_PATH)
-        assert database.loaded is False
-        database.buildNistSplines()
-        assert database.loaded is True
-
     def test_grabPropsValidTemp(self):
         database = db.DataBase(NIST_PATH)
-        database.buildNistSplines()
         result = database.grabProps(5, T=273)
         assert result["T"] == 273
         assert result["P"] == pytest.approx(451.08, rel=1e-4)
@@ -32,11 +26,9 @@ class TestDB:
         assert result["X"] == pytest.approx(3.7412, rel=1e-4)
         assert result["h"] == pytest.approx(1037.1684, rel=1e-4)
         assert result["s"] == pytest.approx(3.9074, rel=1e-4)
-        assert result["state"] == 1
 
     def test_grabPropsValidPressure(self):
         database = db.DataBase(NIST_PATH)
-        database.buildNistSplines()
         result = database.grabProps(5, P=451.08)
         assert result["T"] == pytest.approx(273, rel=1e-4)
         assert result["P"] == 451.08
@@ -49,31 +41,25 @@ class TestDB:
         assert result["X"] == pytest.approx(3.7412, rel=1e-4)
         assert result["h"] == pytest.approx(1037.1684, rel=1e-4)
         assert result["s"] == pytest.approx(3.9074, rel=1e-4)
-        assert result["state"] == 1
 
     def test_grabPropsInvalidTemp(self):
         database = db.DataBase(NIST_PATH)
-        database.buildNistSplines()
         assert pytest.raises(ValueError, database.grabProps, 5, 0, None)
 
     def test_grabPropsInvalidPressure(self):
         database = db.DataBase(NIST_PATH)
-        database.buildNistSplines()
         assert pytest.raises(ValueError, database.grabProps, 5, None, 0)
 
     def test_grabPropsInvalidRho(self):
         database = db.DataBase(NIST_PATH)
-        database.buildNistSplines()
         assert pytest.raises(ValueError, database.grabProps, 0, 273, None)
 
     def test_grabPropsNoTempOrPressure(self):
         database = db.DataBase(NIST_PATH)
-        database.buildNistSplines()
         assert pytest.raises(ValueError, database.grabProps, 5, None, None)
 
     def test_grabPropsTempAndPressure(self):
         database = db.DataBase(NIST_PATH)
-        database.buildNistSplines()
         result = database.grabProps(5, T=273, P=1)
         assert result["T"] == 273
         assert result["P"] == pytest.approx(451.08, rel=1e-4)
@@ -86,11 +72,3 @@ class TestDB:
         assert result["X"] == pytest.approx(3.7412, rel=1e-4)
         assert result["h"] == pytest.approx(1037.1684, rel=1e-4)
         assert result["s"] == pytest.approx(3.9074, rel=1e-4)
-        assert result["state"] == 1
-
-    def test_grabPropsWithoutSplines(self):
-        # If the splines haven't yet been built make sure they are built instead of an error being thrown
-        database = db.DataBase(NIST_PATH)
-        assert database.loaded is False
-        database.grabProps(5, 273)
-        assert database.loaded is True

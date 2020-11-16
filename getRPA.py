@@ -57,52 +57,46 @@ rpa.performanceGetDeliveredIsp.restype = ctypes.c_double
 
 # -----------------------------------------------
 
-def createRPAconf(model, fileName="rpaConf"):
-    # TODO: Read from settings file to create RPA config file (store in rpaWrapper folder)
-    # I tried to avoid creating another config file... I failed
-    # TODO: See if getters and setters in the configFile header file can be used in place of a config file by
-    #  customizing an empty conf object
-    name = fileName
-    if len(name) == 0:
-        name = "rpaConf"
-
-    confPath = "rpaWrapper\\" + name
-    confFile = None
-    try:
-        confFile = open(confPath, "w+")
-    except OSError as e:
-        print("Unable to open or create RPA configuration file:", e)
-        exit(1)
-
-    # Get from model the settings that were taken from the configuration file and use to create
-    confFile.write('version = 1.2;\nname = "' + name +
-                   '";\ninfo = "This file was generated automatically by OpenThrust";\n')
-
-    confFile.write('generalOptions : \n{\n')
-    confFile.write('\t')  # Put in all options, beginning each line with a tab
-    confFile.write('};\n')
-
-    confFile.write('combustionChamberConditions : \n{\n')
-    confFile.write('\t')  # Put in all options, beginning each line with a tab
-    confFile.write('};\n')
-
-    confFile.write('propellant : \n{\n')
-    confFile.write('\t')  # Put in all options, beginning each line with a tab
-    confFile.write('};\n')
-
-    confFile.close()
-    return confPath
-
-
-class RPA(object):
+class RPA:
     """
         Use the RPA members and methods to get required values for the model
         The rpa object pointing to the library MUST be initialized prior to use of this class
     """
 
-    # Initialize, don't want to deal with additional config files, information required should be fed into
-    # constructor from existing config file (add RPA section if required)
-    def __init__(self, confPath):
-        # self.conf = rpa.configFileLoad(encodeString(confPath))
+    def __init__(self):
+        # Set up configuration object
         self.conf = rpa.configFile()
+        rpa.configFileGeneralOptionsSetMultiphase(self.conf, True)
+        rpa.configFileGeneralOptionsSetIons(self.conf, True)
+        rpa.configFileGeneralOptionsSetFlowSeparation(self.conf, True)
+        rpa.configFileNozzleFlowOptionsSetCalculateNozzleFlow(self.conf, True)
+        rpa.configFileNozzleFlowOptionsAmbientConditionsSetDeliveredPerformance(self.conf, True)
+
+        self.ccPressure = 0.0
+        self.inletContractionAreaRatio = 0.0
+        self.exitAreaRatio = 0.0
+        self.nozzleHalfAngle = 0.0
+        self.ambientPressure = 0.0
+        self.OF = 0.0
+        self.oxidizerName = ""
+        self.oxidizerMassFraction = 0.0
+        self.oxidizerPressure = 0.0
+        self.fuelNames = []
+        self.fuelMassFraction = []
+        self.fuelPressure = []
+        readRPAConf(self, CONFIG_PATH)
+
+        rpa.configFileCombustionChamberConditionsSetPressure(self.conf, self.ccPressure, "psi")
+        rpa.configFileNozzleFlowOptionsSetNozzleInletConditions(self.conf, 0, self.inletContractionAreaRatio, None)
+        rpa.configFileNozzleFlowOptionsSetNozzleExitConditions(self.conf, 0, self.exitAreaRatio, None)
+        rpa.configFileNozzleFlowOptionsSetAmbientConditions(self.conf, self.ambientPressure, "atm")
+        rpa.configFileNozzleFlowOptionsSetConeHalfAngle(self.conf, self.nozzleHalfAngle, "degrees")
+        rpa.configFilePropellantSetRatio(self.conf, self.OF, "O/F")
+        rpa.configFilePropellantAddOxidizer(self.conf, self.oxidizerName, self.oxidizerMassFraction,
+                                            self.oxidizerPressure, "MPa", None, None)
+        for fuel in range(len(self.fuelNames)):
+            rpa.configFilePropellantAddFuel(self.conf, self.fuelNames[fuel], self.fuelMassFraction[fuel],
+                                            self.fuelPressure[fuel], "MPa", None, None)
+
+        # Create performance object from configuration object
         self.perf = rpa.performanceCreate(self.conf, 0, 0)

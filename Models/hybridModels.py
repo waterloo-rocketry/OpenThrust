@@ -1,13 +1,10 @@
 import configReader
 from constants import ATMOSPHERE_PSI, CONFIG_PATH
 from Models.injectorModel import DyerModel
-from getRPA import createRPAconf
 
 
 class GeneralModel(object):
-    """
-        General model implementation
-    """
+    """General model implementation"""
 
     def __init__(self, mass, temperature, minMass=0, maxIterations=0, dataBases=None, label=""):
         """
@@ -29,8 +26,7 @@ class GeneralModel(object):
         self.rampUpTime = 0
         self.rampDownTime = 0
         self.dt = 0
-        configReader.ReadSettings(self, CONFIG_PATH)
-        self.rpaConf = createRPAconf(self, fileName=label)
+        configReader.readSettings(self, CONFIG_PATH)
         self.injector = DyerModel(self, self.Ac, self.Cd)
 
         self.running = False
@@ -46,6 +42,7 @@ class GeneralModel(object):
         self.mdotArray, self.thrustArray = [], []
         self.rho1Array, self.PcArray = [], []
 
+        # In case self.V == 0, place in try/except block
         try:
             self.rho1 = self.m / self.V
         except ValueError:

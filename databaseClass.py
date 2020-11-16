@@ -1,5 +1,7 @@
-from scipy.interpolate import interp1d
 import csv
+
+from scipy.interpolate import interp1d
+
 from constants import CENTIGRADE_TO_KELVIN
 
 
@@ -9,7 +11,7 @@ def interpX(X, Y):
 
 def calcQuality(rho, rho_V, rho_L):
     """
-    Returns the factor for determining properties of the liquid/vapour mixture
+    Return the factor for determining properties of the liquid/vapour mixture
     Property = PropertyVapour * factor + PropertyLiquid * (1-factor)
     """
     a = rho_V / rho
@@ -18,7 +20,7 @@ def calcQuality(rho, rho_V, rho_L):
     return a * (b / c)
 
 
-class DataBase(object):
+class DataBase:
 
     def __init__(self, databasePath):
         self.path = databasePath  # Path to database from working directory
@@ -35,20 +37,23 @@ class DataBase(object):
         self.h_V_NIST = []
         self.s_V_NIST = []
 
+        self.buildNistSplines()
+
     def buildNistSplines(self):
         # Read in data from file
         rowCount = -1
-        for row in csv.reader(open(self.path, 'r'), delimiter='\t'):
-            if rowCount > -1:
-                self.T_NIST += [float(row[0]) + CENTIGRADE_TO_KELVIN]
-                self.P_NIST += [float(row[1])]
-                self.rho_L_NIST += [float(row[2])]
-                self.h_L_NIST += [float(row[5])]
-                self.s_L_NIST += [float(row[6])]
-                self.rho_V_NIST += [float(row[14])]
-                self.h_V_NIST += [float(row[17])]
-                self.s_V_NIST += [float(row[18])]
-            rowCount += 1
+        with open(self.path, 'r') as csvFile:
+            for row in csv.reader(csvFile, delimiter='\t'):
+                if rowCount > -1:
+                    self.T_NIST += [float(row[0]) + CENTIGRADE_TO_KELVIN]
+                    self.P_NIST += [float(row[1])]
+                    self.rho_L_NIST += [float(row[2])]
+                    self.h_L_NIST += [float(row[5])]
+                    self.s_L_NIST += [float(row[6])]
+                    self.rho_V_NIST += [float(row[14])]
+                    self.h_V_NIST += [float(row[17])]
+                    self.s_V_NIST += [float(row[18])]
+                rowCount += 1
 
         # Interpolate with respect to temperature to build splines
         self.nistSplines_T["P"] = interpX(self.T_NIST, self.P_NIST)
@@ -72,18 +77,16 @@ class DataBase(object):
 
     def grabProps(self, rho, T=None, P=None):
         """
-        Returns data for either a specified temperature or pressure.
+        Return data for either a specified temperature or pressure.
         If both are specified, temperature will be used to generate the data
         """
-        if (T == 0 or T) and T <= 0:
+        if (T is not None) and (T <= 0):
             raise ValueError("Temperature is at or below 0 K")
         if rho <= 0:
             raise ValueError("Density is at or below 0")
-        if (P == 0 or P) and P <= 0:
+        if (P is not None) and (P <= 0):
             raise ValueError("Pressure is at or below 0")
-        if not self.loaded:
-            # Build the NIST splines if they haven't yet been built
-            self.buildNistSplines()
+
         props = {}
         if T:
             props["T"] = T
@@ -105,6 +108,5 @@ class DataBase(object):
         props["X"] = calcQuality(rho, props["rho_V_NIST"], props["rho_L_NIST"])
         props["h"] = props["h_V_NIST"]*props["X"] + props["h_L_NIST"]*(1-props["X"])
         props["s"] = props["s_V_NIST"]*props["X"] + props["s_L_NIST"]*(1-props["X"])
-        props["state"] = 1
 
         return props

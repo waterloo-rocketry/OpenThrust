@@ -1,7 +1,10 @@
+import os
+
 import getRPA
 
 # To get console output from RPA, change the 0 to a 1
-getRPA.rpa.initializeWithPath("rpaWrapper\\" + getRPA.libraryVer + "\\resources", None, 0)
+rpaPath = os.path.join('rpaWrapper', getRPA.libraryVer, 'resources').encode('utf-8')
+getRPA.rpa.initializeWithPath(rpaPath, None, 0)
 
 # TODO: CLI, any other setup required, link everything together
 

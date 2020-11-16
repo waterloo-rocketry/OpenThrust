@@ -6,6 +6,8 @@ class DyerModel(object):
     Model injector flow rate using the Dyer et. al model with corrections from Solomon.
     1 refers to pre-injector, while 2 refers to post-injector
     L refers to liquid phase, V refers to vapor phase
+
+    A detailed explanation of the Dyer Model is available in the OpenThrust documentation.
     """
 
     def __init__(self, callingModel, Ac, Cd=0.8):
@@ -18,7 +20,7 @@ class DyerModel(object):
     def getMassFlowRate(self):
 
         # Maybe do more research on handling this but for the moment not handled by model.
-        if min(self.parent.P1, self.parent.Pv1) < self.parent.P2 or self.parent.P2 == self.parent.Pv1:
+        if self.parent.P1 < self.parent.P2 or self.parent.Pv1 <= self.parent.P2:
             raise ValueError("Pressure values are invalid")
 
         # Dyer et. al factor. Always 1 for self-pressurizing fluid
