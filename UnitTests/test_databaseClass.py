@@ -1,8 +1,7 @@
-from constants import NIST_PATH
-
-import databaseClass as db
-
 import pytest
+
+from constants import NIST_PATH
+import databaseClass as db
 
 
 class TestHelpers:

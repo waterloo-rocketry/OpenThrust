@@ -26,7 +26,6 @@ class DataBase:
         self.path = databasePath  # Path to database from working directory
         self.nistSplines_T = {}
         self.nistSplines_P = {}
-        self.loaded = False
 
         self.s_L_NIST = []
         self.h_L_NIST = []
@@ -72,8 +71,6 @@ class DataBase:
         self.nistSplines_P["rho_V_NIST"] = interpX(self.P_NIST, self.rho_V_NIST)
         self.nistSplines_P["h_V_NIST"] = interpX(self.P_NIST, self.h_V_NIST)
         self.nistSplines_P["s_V_NIST"] = interpX(self.P_NIST, self.s_V_NIST)
-
-        self.loaded = True
 
     def grabProps(self, rho, T=None, P=None):
         """
