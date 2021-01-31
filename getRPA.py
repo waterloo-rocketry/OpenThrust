@@ -2,6 +2,9 @@ import platform
 import ctypes
 import os
 
+from configReader import readRPAConf
+from constants import CONFIG_PATH
+
 
 def encodeString(s):
     return s.encode('utf-8')
@@ -27,11 +30,26 @@ else:  # On Mac
 rpa.initializeWithPath.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_bool]
 
 rpa.configFile.restype = ctypes.c_void_p
+rpa.configFileGeneralOptionsSetMultiphase.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+rpa.configFileGeneralOptionsSetIons.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+rpa.configFileGeneralOptionsSetFlowSeparation.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+rpa.configFileNozzleFlowOptionsSetCalculateNozzleFlow.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+rpa.configFileNozzleFlowOptionsAmbientConditionsSetDeliveredPerformance.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+
 rpa.configFileCombustionChamberConditionsSetPressure.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_char_p]
 
-# These may not be necessary
-rpa.configFileLoad.argtypes = [ctypes.c_void_p]
-rpa.configFileLoad.restype = ctypes.c_void_p
+rpa.configFileNozzleFlowOptionsSetNozzleInletConditions.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_double,
+                                                                    ctypes.c_char_p]
+rpa.configFileNozzleFlowOptionsSetNozzleExitConditions.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_double,
+                                                                   ctypes.c_char_p]
+rpa.configFileNozzleFlowOptionsSetAmbientConditions.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_char_p]
+rpa.configFileNozzleFlowOptionsSetConeHalfAngle.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_char_p]
+
+rpa.configFilePropellantSetRatio.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_char_p]
+rpa.configFilePropellantAddOxidizer.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_double, ctypes.c_double,
+                                                ctypes.c_char_p, ctypes.c_double, ctypes.c_char_p]
+rpa.configFilePropellantAddFuel.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_double, ctypes.c_double,
+                                            ctypes.c_char_p, ctypes.c_double, ctypes.c_char_p]
 
 rpa.performanceCreate.argtypes = [ctypes.c_void_p, ctypes.c_bool, ctypes.c_bool]
 rpa.performanceCreate.restype = ctypes.c_void_p
@@ -77,6 +95,7 @@ class RPA:
         self.exitAreaRatio = 0.0
         self.nozzleHalfAngle = 0.0
         self.ambientPressure = 0.0
+        self.exitSupersonic = False
         self.OF = 0.0
         self.oxidizerName = ""
         self.oxidizerMassFraction = 0.0
@@ -84,6 +103,14 @@ class RPA:
         self.fuelNames = []
         self.fuelMassFraction = []
         self.fuelPressure = []
+        self.numChambers = 0
+        self.CCLength = 0.0
+        self.characteristicLength = False
+        self.CCContractionAngle = 0.0
+        self.R1RtRatio = 0.0
+        self.RnRtRatio = 0.0
+        self.R2R2MaxRatio = 0.0
+
         readRPAConf(self, CONFIG_PATH)
 
         rpa.configFileCombustionChamberConditionsSetPressure(self.conf, self.ccPressure, "psi")
