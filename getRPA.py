@@ -1,9 +1,14 @@
 import platform
 import ctypes
 import os
+import sys
+import contextlib
+import io
+
+from io import StringIO
 
 from configReader import readRPAConf
-from constants import CONFIG_PATH
+from constants import CONFIG_PATH, BASE_PATH
 
 
 def encodeString(s):
@@ -18,7 +23,7 @@ if platform.system() == "Windows":
         libraryVer = "win64"
     else:  # Running 32 bit python
         libraryVer = "win32"
-    os.add_dll_directory(str(os.getcwd()) + "\\rpaWrapper\\" + libraryVer)
+    os.add_dll_directory(os.path.join(BASE_PATH, "rpaWrapper", libraryVer))
     rpa = ctypes.CDLL("libwrapper.dll")
 # TODO: Add support for Linux and Mac (need to figure out where libraries are stored in downloaded wrappers)
 elif platform.system() == "Linux":
@@ -30,6 +35,10 @@ else:  # On Mac
 rpa.initializeWithPath.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_bool]
 
 rpa.configFile.restype = ctypes.c_void_p
+
+rpa.configFileLoad.argtypes = [ctypes.c_void_p]
+rpa.configFileLoad.restype = ctypes.c_void_p
+
 rpa.configFileGeneralOptionsSetMultiphase.argtypes = [ctypes.c_void_p, ctypes.c_bool]
 rpa.configFileGeneralOptionsSetIons.argtypes = [ctypes.c_void_p, ctypes.c_bool]
 rpa.configFileGeneralOptionsSetFlowSeparation.argtypes = [ctypes.c_void_p, ctypes.c_bool]
@@ -57,10 +66,14 @@ rpa.performanceCreate.restype = ctypes.c_void_p
 rpa.performanceSolve.argtypes = [ctypes.c_void_p, ctypes.c_bool]
 rpa.performanceSolve.restype = ctypes.c_void_p
 
+rpa.performancePrint.argtypes = [ctypes.c_void_p]
+rpa.performancePrint.restype = ctypes.c_void_p
+
 rpa.performanceGetOF.argtypes = [ctypes.c_void_p]
 rpa.performanceGetOF.restype = ctypes.c_double
 
 rpa.performanceDelete.argtypes = [ctypes.c_void_p]
+rpa.configFileDelete.argtypes = [ctypes.c_void_p]
 
 rpa.configFileDelete.argtypes = [ctypes.c_void_p]
 
@@ -81,7 +94,7 @@ class RPA:
         The rpa object pointing to the library MUST be initialized prior to use of this class
     """
 
-    def __init__(self):
+    def __init__(self, confPath=CONFIG_PATH):
         # Set up configuration object
         self.conf = rpa.configFile()
         rpa.configFileGeneralOptionsSetMultiphase(self.conf, True)
@@ -110,20 +123,54 @@ class RPA:
         self.R1RtRatio = 0.0
         self.RnRtRatio = 0.0
         self.R2R2MaxRatio = 0.0
+        self.oxidizerTemperature = 0.0
+        self.fuelTemperature = 0.0
 
-        readRPAConf(self, CONFIG_PATH)
+        readRPAConf(self, confPath)
 
-        rpa.configFileCombustionChamberConditionsSetPressure(self.conf, self.ccPressure, "psi")
+        rpa.configFileCombustionChamberConditionsSetPressure(self.conf, self.ccPressure, encodeString("psi"))
         rpa.configFileNozzleFlowOptionsSetNozzleInletConditions(self.conf, 0, self.inletContractionAreaRatio, None)
         rpa.configFileNozzleFlowOptionsSetNozzleExitConditions(self.conf, 0, self.exitAreaRatio, None)
-        rpa.configFileNozzleFlowOptionsSetAmbientConditions(self.conf, self.ambientPressure, "atm")
-        rpa.configFileNozzleFlowOptionsSetConeHalfAngle(self.conf, self.nozzleHalfAngle, "degrees")
-        rpa.configFilePropellantSetRatio(self.conf, self.OF, "O/F")
-        rpa.configFilePropellantAddOxidizer(self.conf, self.oxidizerName, self.oxidizerMassFraction,
-                                            self.oxidizerPressure, "MPa", None, None)
+        rpa.configFileNozzleFlowOptionsSetAmbientConditions(self.conf, self.ambientPressure, encodeString("atm"))
+        rpa.configFileNozzleFlowOptionsSetConeHalfAngle(self.conf, self.nozzleHalfAngle, encodeString("degrees"))
+        rpa.configFilePropellantSetRatio(self.conf, self.OF, encodeString("O/F"))
+        rpa.configFilePropellantAddOxidizer(self.conf, encodeString(self.oxidizerName), self.oxidizerMassFraction,
+                                            self.oxidizerPressure, encodeString("MPa"), self.oxidizerTemperature,
+                                            encodeString('K'))
         for fuel in range(len(self.fuelNames)):
-            rpa.configFilePropellantAddFuel(self.conf, self.fuelNames[fuel], self.fuelMassFraction[fuel],
-                                            self.fuelPressure[fuel], "MPa", None, None)
+            rpa.configFilePropellantAddFuel(self.conf, encodeString(self.fuelNames[fuel]), self.fuelMassFraction[fuel],
+                                            self.fuelPressure[fuel], encodeString("MPa"), self.fuelTemperature[fuel],
+                                            encodeString('K'))
 
+        # self.conf = rpa.configFileLoad(encodeString(os.path.join(BASE_PATH, "Vidar3RPA.cfg")))
         # Create performance object from configuration object
         self.perf = rpa.performanceCreate(self.conf, 0, 0)
+
+    def solveRPA(self, perfObject=None, optimizePropellant=False):
+        if perfObject is None:
+            rpa.performanceSolve(self.perf, optimizePropellant)
+        else:
+            rpa.performanceSolve(perfObject, optimizePropellant)
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            rpa.performancePrint(self.perf)
+            sys.stdout.flush()
+        return buffer.readlines()
+        # Prints to info.log, no way to change this and no way to access data otherwise, so have to parse it
+        # with open("info.log") as file:
+        #    print(file.readlines())
+
+            #for line in log:
+                #print(line.strip().split())
+                # if "Nozzle section e" in log[row]:
+                #   exitParams = log[row:]
+                #  print("Found!")
+                # break
+            # for row in exitParams:
+            #    row = row.split().strip()
+            #    print(row)
+
+    def updatePressure(self, newPressure):
+
+        self.perf = rpa.performanceCreate(self.conf, 0, 0)
+        rpa.configFileCombustionChamberConditionsSetPressure(self.conf, self.ccPressure, encodeString("psi"))

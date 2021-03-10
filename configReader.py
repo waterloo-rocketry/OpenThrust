@@ -41,17 +41,21 @@ def readRPAConf(RPAObject, confPath):
     RPAObject.OF = float(config["Rocket Properties"]["average oxidizer/fuel ratio"])
     RPAObject.oxidizerName = config["Rocket Properties"]["oxidizer label"]
     RPAObject.oxidizerMassFraction = float(config["Rocket Properties"]["oxidizer mass fraction"])
-    RPAObject.oxidizerPressure = float(config["Rocket Properties"]["oxidizer pressure (MPa)"])
+    RPAObject.oxidizerPressure = float(config["Rocket Properties"]["oxidizer initial pressure (MPa)"])
+    RPAObject.oxidizerTemperature = float(config["Rocket Properties"]["oxidizer initial temperature (K)"])
 
     RPAObject.fuelNames = []
     for fuel in config["Rocket Properties"]["fuel label(s)"].split(','):
-        RPAObject.fuelNames += fuel.strip()
+        RPAObject.fuelNames += [fuel.strip()]
     RPAObject.fuelMassFraction = []
     for fuel in config["Rocket Properties"]["fuel mass fraction(s)"].split(','):
-        RPAObject.fuelMassFraction += float(fuel.strip())
+        RPAObject.fuelMassFraction += [float(fuel.strip())]
     RPAObject.fuelPressure = []
     for fuel in config["Rocket Properties"]["fuel pressure(s) (MPa)"].split(','):
-        RPAObject.fuelPressure += float(fuel.strip())
+        RPAObject.fuelPressure += [float(fuel.strip())]
+    RPAObject.fuelTemperature = []
+    for fuel in config["Rocket Properties"]["fuel temperature(s) (K)"].split(','):
+        RPAObject.fuelTemperature += [float(fuel.strip())]
 
     # Set CC information
     RPAObject.numChambers = int(config["Rocket Dimensions"]["number of chambers"])
