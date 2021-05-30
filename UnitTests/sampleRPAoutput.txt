@@ -1,0 +1,270 @@
+ERROR: Database: could not load thermodynamic database C:\Users\sophi\source\repos\OpenThrust\rpaWrapper\win64\resources/usr_thermo.inp
+ERROR: Database: could not load thermodynamic database C:\Users\sophi\source\repos\OpenThrust\rpaWrapper\win64\resources/usr_thermo.inp
+WARNING: Could not load user-defined thermodynamics data from resources/usr_thermo.inp
+ERROR: Database: could not load properties database C:\Users\sophi\source\repos\OpenThrust\rpaWrapper\win64\resources/usr_properties.inp
+ERROR: Database: could not load properties database C:\Users\sophi\source\repos\OpenThrust\rpaWrapper\win64\resources/usr_properties.inp
+WARNING: Could not load user-defined properties data from resources/usr_properties.inp
+WARNING: Could not find species CCLF3 defined in properties file
+WARNING: Could not find species CCL2F2 defined in properties file
+WARNING: Could not find species CCL3F defined in properties file
+WARNING: Could not find species CHCLF2 defined in properties file
+WARNING: Could not find species CHCL2F defined in properties file
+
+Case name:                                         
+
+***************************************************
+                 Initial data
+***************************************************
+
+Propellant:
+---------------------------------------------------
+    Component  Temp.	 Pressure	       Mass
+                 [K]	    [MPa]	   fraction
+---------------------------------------------------
+         HTPB  298.1	   0.1013	  0.2554839
+      PAPI-94  298.1	   0.1013	  0.0348387
+       AL(cr)  298.0	   0.1013	  0.0322581
+N2O(L),298.15K  298.1	   0.1013	  0.6774194
+---------------------------------------------------
+Propellant exploded formula: (N)1.860 (O)0.930 (H)1.628 (C)1.248 (AL)0.071 
+              alpha:	  0.2691391 (oxidizer excess coefficient)
+                O/F:	  2.1000000
+              O/F 0:	  7.8026574 (stoichiometric)
+
+***************************************************
+                Combustion chamber
+***************************************************
+
+Combustion composition:
+---------------------------------------------------
+             Product	       Mass	       Mole
+                    	  fractions	  fractions
+---------------------------------------------------
+                  AL	  0.0000060	  0.0000044
+                AL2O	  0.0000105	  0.0000030
+                 ALH	  0.0000051	  0.0000036
+                ALOH	  0.0000564	  0.0000254
+      C2H2,acetylene	  0.0005605	  0.0004268
+                C2H4	  0.0000093	  0.0000066
+                C2N2	  0.0000040	  0.0000015
+      C3H3,2-propynl	  0.0000004	  0.0000002
+        C3H4,propyne	  0.0000002	  0.0000001
+      C4H2,butadiyne	  0.0000007	  0.0000003
+        CH2CO,ketene	  0.0000019	  0.0000009
+                 CH3	  0.0000090	  0.0000118
+               CH3CN	  0.0000065	  0.0000031
+                 CH4	  0.0002921	  0.0003610
+                  CN	  0.0000005	  0.0000004
+                  CO	  0.4369915	  0.3092912
+                 CO2	  0.0000505	  0.0000227
+                   H	  0.0000229	  0.0004509
+                  H2	  0.0270417	  0.2659364
+                 H2O	  0.0000888	  0.0000977
+     HCHO,formaldehy	  0.0000008	  0.0000005
+                 HCN	  0.0097147	  0.0071264
+                 HCO	  0.0000009	  0.0000006
+                 HNC	  0.0006026	  0.0004420
+                HNCO	  0.0000016	  0.0000007
+                  N2	  0.4161875	  0.2945320
+                 NH2	  0.0000001	  0.0000001
+                 NH3	  0.0000169	  0.0000197
+            AL2O3(a)	  0.0009028	  0.0001755
+               C(gr)	  0.0592165	  0.0977426
+              ALN(L)	  0.0481967	  0.0233113
+---------------------------------------------------
+Combustion parameters:
+---------------------------------------------------
+        Temperature:	 2116.94784	          K
+           Pressure:	    1.37895	        MPa
+           Enthalpy:	  17710.152	      J/mol
+                    	    893.332	      kJ/kg
+            Entropy:	    204.685	  J/(mol K)
+                    	     10.325	  kJ/(kg K)
+        d_lnV_d_lnT:	  4.0576890
+        d_lnV_d_lnp:	 -1.1638935
+                  M:	 19.8248208
+         Molar mass:	  0.0198248	     kg/mol
+            Cp (eq):	  457.20846	  J/(mol K)
+                    	   23.06243	  kJ/(kg K)
+            Cv (eq):	  353.84800	  J/(mol K)
+                    	   17.84874	  kJ/(kg K)
+              gamma:	  1.2921041
+                  k:	  1.1101567
+                  R:	  419.39708	   J/(kg K)
+                  a:	  930.67417	        m/s
+                rho:	    1.76741	     kg/m^3
+     rho (gas only):	    1.57597	     kg/m^3
+               C-ph:	  0.1083160	 Condensed phase mass fraction
+
+***************************************************
+              Combustion chamber end
+***************************************************
+
+Combustion composition:
+---------------------------------------------------
+             Product	       Mass	       Mole
+                    	  fractions	  fractions
+---------------------------------------------------
+                  AL	  0.0000060	  0.0000044
+                AL2O	  0.0000104	  0.0000029
+                 ALH	  0.0000051	  0.0000036
+                ALOH	  0.0000562	  0.0000253
+      C2H2,acetylene	  0.0005586	  0.0004253
+                C2H4	  0.0000093	  0.0000065
+                C2N2	  0.0000039	  0.0000015
+      C3H3,2-propynl	  0.0000004	  0.0000002
+      C4H2,butadiyne	  0.0000007	  0.0000003
+        CH2CO,ketene	  0.0000019	  0.0000009
+                 CH3	  0.0000089	  0.0000118
+               CH3CN	  0.0000065	  0.0000031
+                 CH4	  0.0002911	  0.0003597
+                  CN	  0.0000005	  0.0000004
+                  CO	  0.4368977	  0.3092184
+                 CO2	  0.0000504	  0.0000227
+                   H	  0.0000229	  0.0004504
+                  H2	  0.0270429	  0.2659434
+                 H2O	  0.0000886	  0.0000974
+     HCHO,formaldehy	  0.0000008	  0.0000005
+                 HCN	  0.0096956	  0.0071122
+                 HCO	  0.0000009	  0.0000006
+                 HNC	  0.0006008	  0.0004407
+                HNCO	  0.0000016	  0.0000007
+                  N2	  0.4162298	  0.2945558
+                 NH2	  0.0000001	  0.0000001
+                 NH3	  0.0000168	  0.0000196
+            AL2O3(a)	  0.0010175	  0.0001978
+               C(gr)	  0.0592687	  0.0978267
+              ALN(L)	  0.0481047	  0.0232664
+---------------------------------------------------
+Combustion parameters:
+---------------------------------------------------
+        Temperature:	 2116.35694	          K
+           Pressure:	    1.37220	        MPa
+           Enthalpy:	  17671.736	      J/mol
+                    	    891.413	      kJ/kg
+            Entropy:	    204.699	  J/(mol K)
+                    	     10.326	  kJ/(kg K)
+        d_lnV_d_lnT:	  4.0581616
+        d_lnV_d_lnp:	 -1.1638655
+                  M:	 19.8244083
+         Molar mass:	  0.0198244	     kg/mol
+            Cp (eq):	  457.36899	  J/(mol K)
+                    	   23.07100	  kJ/(kg K)
+            Cv (eq):	  353.98919	  J/(mol K)
+                    	   17.85623	  kJ/(kg K)
+              gamma:	  1.2920422
+                  k:	  1.1101302
+                  R:	  419.40581	   J/(kg K)
+                  a:	  930.51032	        m/s
+                rho:	    1.75933	     kg/m^3
+     rho (gas only):	    1.56864	     kg/m^3
+               C-ph:	  0.1083910	 Condensed phase mass fraction
+
+***************************************************
+                      Throat
+***************************************************
+
+Combustion composition:
+---------------------------------------------------
+             Product	       Mass	       Mole
+                    	  fractions	  fractions
+---------------------------------------------------
+                  AL	  0.0000037	  0.0000027
+                AL2O	  0.0000050	  0.0000014
+                 ALH	  0.0000028	  0.0000020
+                ALOH	  0.0000326	  0.0000147
+      C2H2,acetylene	  0.0003629	  0.0002757
+                C2H4	  0.0000052	  0.0000037
+                C2N2	  0.0000022	  0.0000008
+      C4H2,butadiyne	  0.0000003	  0.0000001
+        CH2CO,ketene	  0.0000009	  0.0000004
+                 CH3	  0.0000053	  0.0000070
+               CH3CN	  0.0000035	  0.0000017
+                 CH4	  0.0002079	  0.0002563
+                  CN	  0.0000003	  0.0000002
+                  CO	  0.4030522	  0.2846564
+                 CO2	  0.0000349	  0.0000157
+                   H	  0.0000190	  0.0003724
+                  H2	  0.0271723	  0.2666469
+                 H2O	  0.0000635	  0.0000697
+     HCHO,formaldehy	  0.0000004	  0.0000003
+                 HCN	  0.0076435	  0.0055949
+                 HCO	  0.0000005	  0.0000003
+                 HNC	  0.0004188	  0.0003066
+                HNCO	  0.0000009	  0.0000004
+                  N2	  0.4286916	  0.3027287
+                 NH3	  0.0000114	  0.0000133
+            AL2O3(a)	  0.0421796	  0.0081836
+               C(gr)	  0.0750326	  0.1235822
+              ALN(L)	  0.0150456	  0.0072615
+---------------------------------------------------
+Combustion parameters:
+---------------------------------------------------
+        Temperature:	 2045.16457	          K
+           Pressure:	    0.80244	        MPa
+           Enthalpy:	   9570.627	      J/mol
+                    	    483.800	      kJ/kg
+            Entropy:	    204.263	  J/(mol K)
+                    	     10.326	  kJ/(kg K)
+        d_lnV_d_lnT:	  3.9926233
+        d_lnV_d_lnp:	 -1.1541653
+                  M:	 19.7821906
+         Molar mass:	  0.0197822	     kg/mol
+            Cp (eq):	  455.35272	  J/(mol K)
+                    	   23.01832	  kJ/(kg K)
+            Cv (eq):	  356.48085	  J/(mol K)
+                    	   18.02029	  kJ/(kg K)
+              gamma:	  1.2773553
+                  k:	  1.1067352
+                  R:	  420.30087	   J/(kg K)
+                  a:	  905.02553	        m/s
+                rho:	    1.08426	     kg/m^3
+     rho (gas only):	    0.94086	     kg/m^3
+               C-ph:	  0.1322579	 Condensed phase mass fraction
+
+***************************************************
+      Nozzle section e=  4.730 (equilibrium)
+***************************************************
+
+Combustion composition:
+---------------------------------------------------
+             Product	       Mass	       Mole
+                    	  fractions	  fractions
+---------------------------------------------------
+                 CH4	  0.0005427	  0.0006656
+                  CO	  0.3834342	  0.2693321
+                 CO2	  0.0020632	  0.0009224
+                  H2	  0.0273242	  0.2666828
+                 H2O	  0.0010867	  0.0011868
+                 HCN	  0.0000285	  0.0000208
+                  N2	  0.4380032	  0.3076262
+                 NH3	  0.0000070	  0.0000081
+            AL2O3(a)	  0.0609506	  0.0117613
+               C(gr)	  0.0865592	  0.1417936
+---------------------------------------------------
+Combustion parameters:
+---------------------------------------------------
+        Temperature:	 1180.00731	          K
+           Pressure:	    0.04274	        MPa
+           Enthalpy:	 -23744.045	      J/mol
+                    	  -1206.821	      kJ/kg
+            Entropy:	    203.154	  J/(mol K)
+                    	     10.326	  kJ/(kg K)
+        d_lnV_d_lnT:	  1.0446338
+        d_lnV_d_lnp:	 -1.0032311
+                  M:	 19.6748677
+         Molar mass:	  0.0196749	     kg/mol
+            Cp (eq):	   37.21376	  J/(mol K)
+                    	    1.89144	  kJ/(kg K)
+            Cv (eq):	   29.55849	  J/(mol K)
+                    	    1.50235	  kJ/(kg K)
+              gamma:	  1.2589872
+                  k:	  1.2549324
+                  R:	  422.59354	   J/(kg K)
+                  a:	  727.80216	        m/s
+                rho:	    0.10127	     kg/m^3
+     rho (gas only):	    0.08633	     kg/m^3
+               C-ph:	  0.1475098	 Condensed phase mass fraction
+           Velocity:	 2049.46497	        m/s
+        Mach number:	  2.8159644	           
+     Pressure ratio:	   32.26132	

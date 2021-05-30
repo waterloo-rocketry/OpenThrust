@@ -3,12 +3,10 @@ import ctypes
 import os
 import sys
 import contextlib
-import io
-
-from io import StringIO
 
 from configReader import readRPAConf
 from constants import CONFIG_PATH, BASE_PATH
+from utils import GrabOutput
 
 
 def encodeString(s):
@@ -88,6 +86,62 @@ rpa.performanceGetDeliveredIsp.restype = ctypes.c_double
 
 # -----------------------------------------------
 
+def parseRPA(outputData):
+    # Create a dictionary containing all values from the RPA output
+    values = {}
+    exclude = ["ERROR", "WARNING", "Case name"]
+    excludeSubsection = ["Combustion composition"]
+    outputData = outputData.splitlines()
+    currentSection = None
+    headerTitle = None
+    newSection = False
+    header = False
+    units = False
+    separationCount = 0
+    for line in range(len(outputData)):
+        if len(outputData[line].strip()) > 0 and not any(word in outputData[line] for word in exclude):
+            if '*' in outputData[line].strip():
+                if not newSection:
+                    newSection = True
+                    header = False
+                    separationCount = 0
+                else:
+                    newSection = False
+                continue
+            if newSection:
+                currentSection = outputData[line].strip()
+                values[currentSection] = {}
+                continue
+            if not header:
+                header = True
+                headerTitle = outputData[line].strip()[:-1]
+                continue
+            if "--" in outputData[line].strip():
+                if header and separationCount < 2:
+                    separationCount += 1
+                    if separationCount == 1 and not "Combustion parameters" in headerTitle:
+                        units = True
+                    else:
+                        units = False
+                else:
+                    separationCount = 0
+                    header = False
+                continue
+            elif not any(section in headerTitle for section in excludeSubsection) and not units:
+                if ":" in outputData[line]:
+                    newEntry = outputData[line].split(":")
+                    values[currentSection][newEntry[0].strip()] = [l.strip() for l in newEntry[1].split()]
+                else:
+                    newEntry = [l.strip() for l in outputData[line].split()]
+                    # If the first value in newEntry is a number, don't include this line (just unit conversion of
+                    # previous entry)
+                    try:
+                        float(newEntry[0])
+                    except ValueError:
+                        values[currentSection][newEntry[0]] = newEntry[1:]
+    return values
+
+
 class RPA:
     """
         Use the RPA members and methods to get required values for the model
@@ -145,32 +199,18 @@ class RPA:
         # self.conf = rpa.configFileLoad(encodeString(os.path.join(BASE_PATH, "Vidar3RPA.cfg")))
         # Create performance object from configuration object
         self.perf = rpa.performanceCreate(self.conf, 0, 0)
+        self.values = {}
 
     def solveRPA(self, perfObject=None, optimizePropellant=False):
         if perfObject is None:
             rpa.performanceSolve(self.perf, optimizePropellant)
         else:
             rpa.performanceSolve(perfObject, optimizePropellant)
-        buffer = io.StringIO()
-        with contextlib.redirect_stdout(buffer):
+        buffer = GrabOutput()
+        with buffer:
             rpa.performancePrint(self.perf)
-            sys.stdout.flush()
-        return buffer.readlines()
-        # Prints to info.log, no way to change this and no way to access data otherwise, so have to parse it
-        # with open("info.log") as file:
-        #    print(file.readlines())
-
-            #for line in log:
-                #print(line.strip().split())
-                # if "Nozzle section e" in log[row]:
-                #   exitParams = log[row:]
-                #  print("Found!")
-                # break
-            # for row in exitParams:
-            #    row = row.split().strip()
-            #    print(row)
+        return parseRPA(buffer.capturedOutput)
 
     def updatePressure(self, newPressure):
-
         self.perf = rpa.performanceCreate(self.conf, 0, 0)
         rpa.configFileCombustionChamberConditionsSetPressure(self.conf, self.ccPressure, encodeString("psi"))
