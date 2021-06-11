@@ -15,9 +15,11 @@ getRPA.rpa.initializeWithPath(rpaPath, None, 1)
 rpaObject = getRPA.RPA()
 rpaDict = rpaObject.solveRPA()
 
-expectedKeys = ["Initial data", "Combustion chamber", "Combustion chamber end", "Throat", "Nozzle section"]
+expectedKeys = ["Initial data", "Combustion chamber", "Combustion chamber end", "Throat",
+                "Nozzle section e=  4.730 (equilibrium)"]
 assert(len(rpaDict) == 5)
-assert any(key in rpaDict.keys() for key in expectedKeys)
+# Check that all expected keys are present
+assert all(key in rpaDict.keys() for key in expectedKeys)
 for key in rpaDict.keys():
     assert(len(rpaDict[key]) > 0)
 

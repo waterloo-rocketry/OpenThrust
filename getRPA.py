@@ -1,8 +1,6 @@
 import platform
 import ctypes
 import os
-import sys
-import contextlib
 
 from configReader import readRPAConf
 from constants import CONFIG_PATH, BASE_PATH
@@ -89,56 +87,81 @@ rpa.performanceGetDeliveredIsp.restype = ctypes.c_double
 def parseRPA(outputData):
     # Create a dictionary containing all values from the RPA output
     values = {}
+    # Exclude some lines that are outputted by the RPA library but don't contain useful information
     exclude = ["ERROR", "WARNING", "Case name"]
     excludeSubsection = ["Combustion composition"]
+    # Split the string fed in at the newline characters, creating an array of strings
     outputData = outputData.splitlines()
+    # Declare some variables that will be used further down
     currentSection = None
     headerTitle = None
     newSection = False
     header = False
     units = False
     separationCount = 0
-    for line in range(len(outputData)):
-        if len(outputData[line].strip()) > 0 and not any(word in outputData[line] for word in exclude):
-            if '*' in outputData[line].strip():
+    # Iterate through each line of the data
+    for line in outputData:
+        # Ignore any lines that are empty or include any of the excluded markers
+        if len(line.strip()) > 0 and not any(word in line for word in exclude):
+            # RPA uses a line of '*'s before and after the title of each main section
+            if '*' in line.strip():
+                # If the a new section was not already opened, a line of '*'s indicates the beginning of a new section
                 if not newSection:
                     newSection = True
                     header = False
                     separationCount = 0
+                # Otherwise the line indicates the end of a new section
                 else:
                     newSection = False
                 continue
+            # If a new section was opened but not closed yet, this line is the name of the section. Introduce it as a
+            # key for an empty dictionary within the main dictionary
             if newSection:
-                currentSection = outputData[line].strip()
+                currentSection = line.strip()
                 values[currentSection] = {}
                 continue
+            # If the new section has been closed but header has not yet been set, this line is a header for a subsection
             if not header:
                 header = True
-                headerTitle = outputData[line].strip()[:-1]
+                headerTitle = line.strip()[:-1]
                 continue
-            if "--" in outputData[line].strip():
+            # RPA uses a line of '--'s to delineate subsections and column titles
+            if "--" in line.strip():
                 if header and separationCount < 2:
                     separationCount += 1
+                    # If this is the first line of '--'s, a header was already defined, and the header is not
+                    # 'Combustion parameters' (the only subsection to break this rule), the lines until the next line
+                    # of '--'s is units and/or the title of columns. Otherwise it is not, make sure units is set to
+                    # false
                     if separationCount == 1 and not "Combustion parameters" in headerTitle:
                         units = True
                     else:
                         units = False
+                # Otherwise this is indicating the end of a subsection, reset the separation count and set header to
+                # false
                 else:
                     separationCount = 0
                     header = False
                 continue
+            # If none of the header title is in the list of excluded markers and the units flag has not been set,
+            # this is a relevant value that needs to be added to the subsection dictionary
             elif not any(section in headerTitle for section in excludeSubsection) and not units:
-                if ":" in outputData[line]:
-                    newEntry = outputData[line].split(":")
+                # Some lines separate the parameter and value by a ':', if so split across this and write the parameter
+                # and value into the current subsection dictionary
+                if ":" in line:
+                    newEntry = line.split(":")
                     values[currentSection][newEntry[0].strip()] = [l.strip() for l in newEntry[1].split()]
+                # Otherwise the parameter and value are only split by whitespace, split the line and write the parameter
+                # and value into the current subsection dictionary
                 else:
-                    newEntry = [l.strip() for l in outputData[line].split()]
+                    newEntry = [l.strip() for l in line.split()]
                     # If the first value in newEntry is a number, don't include this line (just unit conversion of
                     # previous entry)
                     try:
                         float(newEntry[0])
                     except ValueError:
                         values[currentSection][newEntry[0]] = newEntry[1:]
+    # Return the completed dictionary of values
     return values
 
 
@@ -157,6 +180,7 @@ class RPA:
         rpa.configFileNozzleFlowOptionsSetCalculateNozzleFlow(self.conf, True)
         rpa.configFileNozzleFlowOptionsAmbientConditionsSetDeliveredPerformance(self.conf, True)
 
+        # Initialize a bunch of variables to be read in
         self.ccPressure = 0.0
         self.inletContractionAreaRatio = 0.0
         self.exitAreaRatio = 0.0
@@ -180,8 +204,10 @@ class RPA:
         self.oxidizerTemperature = 0.0
         self.fuelTemperature = 0.0
 
+        # Read in the values for the above variables from the configuration file
         readRPAConf(self, confPath)
 
+        #
         rpa.configFileCombustionChamberConditionsSetPressure(self.conf, self.ccPressure, encodeString("psi"))
         rpa.configFileNozzleFlowOptionsSetNozzleInletConditions(self.conf, 0, self.inletContractionAreaRatio, None)
         rpa.configFileNozzleFlowOptionsSetNozzleExitConditions(self.conf, 0, self.exitAreaRatio, None)
@@ -213,4 +239,5 @@ class RPA:
 
     def updatePressure(self, newPressure):
         self.perf = rpa.performanceCreate(self.conf, 0, 0)
-        rpa.configFileCombustionChamberConditionsSetPressure(self.conf, self.ccPressure, encodeString("psi"))
+        rpa.configFileCombustionChamberConditionsSetPressure(self.conf, newPressure, encodeString("psi"))
+        return self.solveRPA()
