@@ -207,7 +207,7 @@ class RPA:
         # Read in the values for the above variables from the configuration file
         readRPAConf(self, confPath)
 
-        #
+        # Set configuration object according to values read from settings file
         rpa.configFileCombustionChamberConditionsSetPressure(self.conf, self.ccPressure, encodeString("psi"))
         rpa.configFileNozzleFlowOptionsSetNozzleInletConditions(self.conf, 0, self.inletContractionAreaRatio, None)
         rpa.configFileNozzleFlowOptionsSetNozzleExitConditions(self.conf, 0, self.exitAreaRatio, None)
