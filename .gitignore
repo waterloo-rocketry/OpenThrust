@@ -15,3 +15,6 @@ rpaWrapper/win32/examples/
 rpaWrapper/win64/examples/
 rpaWrapper/win32/include/
 rpaWrapper/win64/include/
+
+# Log files
+*.log
